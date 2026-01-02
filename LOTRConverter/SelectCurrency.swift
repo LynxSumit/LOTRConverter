@@ -31,9 +31,6 @@ struct SelectCurrency: View {
                     }
                     
                 }
-              
-                
-                
                 //Text
                 Text("Select the currency you'd like to convert to:")
                     .fontWeight(.bold)
