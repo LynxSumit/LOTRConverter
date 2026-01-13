@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import TipKit
 
 struct ContentView: View {
     
@@ -20,7 +21,7 @@ struct ContentView: View {
     @FocusState var leftTyping
     @FocusState var rightTyping
     
-    
+    let currencyTip = CurrencyTip()
 
     var body: some View {
         ZStack{
@@ -48,6 +49,7 @@ struct ContentView: View {
                         
                         Button {
                             showSelectCurrency.toggle()
+                            currencyTip.invalidate(reason: .actionPerformed)
                         } label: {
                             HStack{
                                 // Currency Image
@@ -63,17 +65,14 @@ struct ContentView: View {
                                     .foregroundStyle(.white)
                             }
                             .padding(.bottom, -5)
+                            .popoverTip(currencyTip, arrowEdge: .bottom)
                         }
                         
                         //Text Fielf
                         TextField("Amount", text: $leftAmount)
                             .textFieldStyle(.roundedBorder)
                             .focused($leftTyping)
-                            .onChange(of: leftAmount) {
-                                if leftTyping {
-                                    rightAmount = selected_from.convert(leftAmount ,  selected_to)
-                                }
-                            }
+                            
                         
                     }
                     
@@ -89,6 +88,7 @@ struct ContentView: View {
                         
                         Button {
                             showSelectCurrency.toggle()
+                            currencyTip.invalidate(reason: .actionPerformed)
                         } label: {
                             HStack{
                                 // Currency Text
@@ -109,17 +109,14 @@ struct ContentView: View {
                         TextField("Amount", text: $rightAmount)
                             .textFieldStyle(.roundedBorder)
                             .focused($rightTyping)
-                            .onChange(of: rightAmount) {
-                                if rightTyping {
-                                    leftAmount = selected_to.convert( rightAmount,  selected_from)
-                                }
-                            }
+                            
                         
                     }
                 }
                 .padding()
                 .background(.black.opacity(0.5))
                 .clipShape(.capsule)
+                .keyboardType(.decimalPad)
                 
                 
                 Spacer()
@@ -135,17 +132,30 @@ struct ContentView: View {
                             .foregroundStyle(.white)
                     }
                     .padding(.trailing)
+                    .task {
+                        try? Tips.configure()
+                    }
+                    .onChange(of: leftAmount) {
+                        if leftTyping {
+                            rightAmount = selected_from.convert(leftAmount ,  selected_to)
+                        }
+                    }
+                    .onChange(of: rightAmount) {
+                        if rightTyping {
+                            leftAmount = selected_to.convert( rightAmount,  selected_from)
+                        }
+                    }
+                    .onChange(of: selected_from) {
+                    leftAmount = selected_to.convert( rightAmount,  selected_from)
+                    }
+                    .onChange(of: selected_to) {
+                        rightAmount = selected_from.convert(leftAmount ,  selected_to)
+                    }
                     .sheet(isPresented: $showExchangeInfo){
                         ExchangeInfo()
                     }
                     .sheet(isPresented: $showSelectCurrency){
                         SelectCurrency(selected_from: $selected_from, selected_to: $selected_to)
-                            .onChange(of: selected_from) {
-                            leftAmount = selected_to.convert( rightAmount,  selected_from)
-                            }
-                            .onChange(of: selected_to) {
-                                rightAmount = selected_from.convert(leftAmount ,  selected_to)
-                            }
                         
                     }
                 }
