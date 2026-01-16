@@ -13,8 +13,9 @@ import SwiftUI
     case silverpiece = 16
     case goldpenny = 4
     case goldpiece = 1
+    case platinumpenny = 0.1
     
-    var id : Currency {self}
+     var id : String {name}
     
     var image: ImageResource {
         switch self {
@@ -28,6 +29,8 @@ import SwiftUI
                 .goldpenny
         case .goldpiece:
                 .goldpiece
+        case .platinumpenny:
+                .platinumpenny
         }
     }
     
@@ -43,6 +46,8 @@ import SwiftUI
             "Gold Penny"
         case .goldpiece:
             "Gold Piece"
+        case .platinumpenny:
+            "Platinum Penny"
         }
     }
      
